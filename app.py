@@ -17,6 +17,8 @@ from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 
 
 # Load environment variables
@@ -36,10 +38,14 @@ firebase_credentials_dict['private_key'] = firebase_credentials_dict['private_ke
 
 
 
-cred = credentials.Certificate(firebase_credentials_dict)
-initialize_app(cred, {
-    'databaseURL': firebase_db_url
-})
+# cred = credentials.Certificate(firebase_credentials_dict)
+# initialize_app(cred, {
+#     'databaseURL': firebase_db_url
+# })
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(firebase_credentials_dict)
+    initialize_app(cred, {'databaseURL': firebase_db_url})
 
 
 
@@ -55,16 +61,60 @@ initialize_app(cred, {
 
 # Firebase Admin SDK setup
 
-diabetesfull = joblib.load('models/diabetesfull.pkl')
-diabeteshalf = joblib.load('models/diabeteshalf.pkl')
-hypertensionfull = joblib.load('models/hypertensionfull.pkl')
-hypertensionhalf = joblib.load('models/hypertensionhalf.pkl')
-hearthalf = joblib.load('models/hearthalf.pkl')
-heartfull = joblib.load('models/heartfull.pkl')
-brainTumor = tf.keras.models.load_model('models/tumor.h5')
-skin = tf.keras.models.load_model('models/skin.h5')
-chestCancer = tf.keras.models.load_model('models/ChestCancer.h5')
-breastCancer = tf.keras.models.load_model('models/BreastCancer.h5')
+# diabetesfull = joblib.load('models/diabetesfull.pkl')
+# diabeteshalf = joblib.load('models/diabeteshalf.pkl')
+# hypertensionfull = joblib.load('models/hypertensionfull.pkl')
+# hypertensionhalf = joblib.load('models/hypertensionhalf.pkl')
+# hearthalf = joblib.load('models/hearthalf.pkl')
+# heartfull = joblib.load('models/heartfull.pkl')
+# brainTumor = tf.keras.models.load_model('models/tumor.h5')
+# skin = tf.keras.models.load_model('models/skin.h5')
+# chestCancer = tf.keras.models.load_model('models/ChestCancer.h5')
+# breastCancer = tf.keras.models.load_model('models/BreastCancer.h5')
+
+# Define the base directory dynamically
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Paths for joblib models
+diabetesfull_path = os.path.join(BASE_DIR, "models", "diabetesfull.pkl")
+diabeteshalf_path = os.path.join(BASE_DIR, "models", "diabeteshalf.pkl")
+hypertensionfull_path = os.path.join(BASE_DIR, "models", "hypertensionfull.pkl")
+hypertensionhalf_path = os.path.join(BASE_DIR, "models", "hypertensionhalf.pkl")
+hearthalf_path = os.path.join(BASE_DIR, "models", "hearthalf.pkl")
+heartfull_path = os.path.join(BASE_DIR, "models", "heartfull.pkl")
+
+# Paths for TensorFlow models
+brainTumor_path = os.path.join(BASE_DIR, "models", "tumor.h5")
+skin_path = os.path.join(BASE_DIR, "models", "skin.h5")
+chestCancer_path = os.path.join(BASE_DIR, "models", "ChestCancer.h5")
+breastCancer_path = os.path.join(BASE_DIR, "models", "BreastCancer.h5")
+
+# Load joblib models
+diabetesfull = joblib.load(diabetesfull_path)
+diabeteshalf = joblib.load(diabeteshalf_path)
+hypertensionfull = joblib.load(hypertensionfull_path)
+hypertensionhalf = joblib.load(hypertensionhalf_path)
+hearthalf = joblib.load(hearthalf_path)
+heartfull = joblib.load(heartfull_path)
+
+# Load TensorFlow models
+brainTumor = tf.keras.models.load_model(brainTumor_path)
+skin = tf.keras.models.load_model(skin_path)
+chestCancer = tf.keras.models.load_model(chestCancer_path)
+breastCancer = tf.keras.models.load_model(breastCancer_path)
+
+# Debugging: Print paths to verify correctness
+# print(f"Loaded models from:\n"
+#       f" - {diabetesfull_path}\n"
+#       f" - {diabeteshalf_path}\n"
+#       f" - {hypertensionfull_path}\n"
+#       f" - {hypertensionhalf_path}\n"
+#       f" - {hearthalf_path}\n"
+#       f" - {heartfull_path}\n"
+#       f" - {brainTumor_path}\n"
+#       f" - {skin_path}\n"
+#       f" - {chestCancer_path}\n"
+#       f" - {breastCancer_path}")
 
 app = FastAPI()
 
@@ -90,7 +140,7 @@ def get_llama_response(query,prompt):
 def root():
     return {"message": "Hello, World!"}
 
-@app.post('predict')
+@app.post('/predict')
 def predict():
     return None
 
